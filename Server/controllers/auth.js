@@ -1,10 +1,12 @@
 import mongoose from "mongoose"
-import User from "../models/user.js"
+import User from "../models/User.js"
 import bcrypt from "bcrypt"
 import { createError } from "../error.js"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
+
+
 
 
 export const signup = async (req,res,next)=>{
@@ -13,15 +15,16 @@ export const signup = async (req,res,next)=>{
         const {name,email,password} = req.body;
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password,salt);
+        
         const newUser = new User({
             name,
             email,
             password:hash
         })
         await newUser.save();
-        res.status(200).json({message:"new user has been created"})
-     
-
+        console.log(newUser)
+      //   res.status(200).json({message:"new user has been created"})
+      res.status(200).json(newUser)
      }catch(err){
         next(createError(err.message,500))
      }
@@ -37,15 +40,136 @@ export const signin = async (req,res,next)=>{
         if(!isCorrect) return next(createError("Password is incorrect",400))
         
         const token =jwt.sign({id:user._id}, process.env.JWT)
-
+         // console.log(token)
+         // localStorage.setItem("token",token).status(200).json(token) 
+        // if(!token){
+         //    return next(createError("Token not found",400))
+         // } 
+            
+         // else{
+         //    localStorage.setItem("token",token) 
+         // }
         const {password,...others} = user._doc;
-        res.cookie("access_token",token,{
-            httpOnly:true,
-        })
-        .status(200)
-        .json(others);
+
+      //   res.cookie("access_token",token,{
+      //    httpOnly:true,
+      //        sameSite:"none",
+      //        secure:true
+      //   })
+       
+
+      // //   //set the token in the local storage of the browser
+      //   .status(200)
+      //   .json(token);
+      res.json(token)
 
      }catch(err){
         next(createError(err.message,500))
      }
+}
+
+export const profile = async (req,res,next)=>{   
+   // req.json(req.headers.authorization.split(" ")[1]);
+   // const decoded = jwt.verify(req.headers.authorization.split(" ")[1],process.env.JWT)
+   try{
+
+      const token =await req.headers.authorization.split(" ")[1];
+      // console.log(token)
+      // console.log(token)
+      jwt.verify(token,process.env.JWT,(err,user)=>{
+         if(err) return next(createError("Token is not valid",400))
+         
+            
+      })
+      const decodedToken = jwt.decode(token,process.env.JWT);
+      const user = await User.findById(decodedToken.id)
+      // console.log(user)
+      res.json(user)
+   }catch(err){
+      next(createError(err.message,500))
+   }
+
+      // console.log(req.cookies)
+
+}
+
+export const CheckRe = async (req,res,next)=>{
+   try{
+      const token =req.headers.authorization.split(" ")[1];
+      // console.log(token)
+      if(!token) return next(createError("Token not found",400))
+      jwt.verify(token,process.env.JWT,(err,user)=>{
+         if(err) return next(createError("Token is not valid",400))
+         // console.log(user)
+      })
+      const decodedToken = jwt.decode(token,process.env.JWT);
+      const user = await User.findById(decodedToken.id)
+      console.log(user)
+      res.json(user)
+
+   }
+   catch(err){
+      next(createError(err.message,500))
+   }
+}
+
+export const googleAuth = async (req,res,next)=>{
+   console.log(req.body)
+  res.json(req.body)
+}
+
+
+export const followRequest = async (req,res,next)=>{
+   // res.json(req.body)
+
+   try{
+       const user = await User.findById(req.params.followId);
+         const currentUser = await User.findById(req.params.followerId);
+       const isFollowed = user.followers.includes(req.params.followerId);
+         const isFollowing = currentUser.following.includes(req.params.followId);
+         // console.log(isFollowed,isFollowing)
+         if(isFollowed && isFollowing){
+            user.followers.pull(req.params.followerId);
+            currentUser.following.pull(req.params.followId);
+         }
+         else{
+            user.followers.push(req.params.followerId);
+            currentUser.following.push(req.params.followId);
+         }
+
+         await user.save();
+         await currentUser.save();
+
+         // console.log(user,currentUser)
+         // console.log(user,currentUser)
+
+
+      //  await user.save();
+       res.json(user)
+      // res.json(req.body)
+   }
+   catch(err){
+       next(createError(err.message,500))  
+   }
+}
+
+export const getFollowing =async(req,res,next)=>{
+
+   console.log(req.params.UserId,req.params.authorId)
+   try{
+      const user = await User.findById(req.params.UserId);
+      const authorUser = await User.findById(req.params.authorId);
+      const isFollowed = authorUser.followers.includes(req.params.UserId);
+      // const isFollowing = authorUser.following.includes(req.params.UserId);
+      console.log(isFollowed)
+      // const following = await User.find({_id:user.following})
+      // console.log(req.params.userId)
+      // res.json(isFollowed)
+//send the user and the author user as the response
+      res.json({authorUser,isFollowed})
+   }
+   catch(err){
+      next(createError(err.message,500))  
+   }
+
 }

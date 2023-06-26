@@ -1,0 +1,66 @@
+import mongoose from "mongoose";
+
+const blogSchema =new mongoose.Schema({
+    title:{
+        type:String,
+        required:true,
+    },
+    content:{
+        type:String,
+        required:true,
+    },
+    authorMail:{
+        type:String,
+    },
+    orginalName:{
+        type:String,
+    },
+    authorU:{
+        type:String,
+        required:true,
+    },
+    authorName:{
+        type:String,
+        required:true,
+    },
+    date:{
+        type:Date,
+        default:Date.now
+    },
+    likes:{
+        type:Number,
+        default:0
+    },
+    comments:{
+        type:Array,
+        default:[]
+    },
+    image:{
+        type:String,
+        default:""
+    },
+    category:{
+        type:String,
+        default:""
+    },
+    tags:{
+        type:Array,
+        default:[]
+    },
+    views:{
+        type:Number,
+        default:0
+    },
+    following:{
+        type:Array,
+        default:[]
+    },
+    followers:{
+        type:Array,
+        default:[]
+    },
+},
+{timestamps:true}
+);
+
+export default mongoose.model("Blog",blogSchema)

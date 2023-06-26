@@ -14,9 +14,24 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true,
     },
-    
+    fromGoogle:{
+        type:Boolean,
+        default:false,
+    },
+    image:{
+        type:String,
+        default:""
+    },
+    followers:{
+        type:Array,
+        default:[]
+    },
+    following:{
+        type:Array,
+        default:[]
+    },
+
 },
 {timestamps:true}
 )
