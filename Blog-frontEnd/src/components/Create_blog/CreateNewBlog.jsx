@@ -9,7 +9,7 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import {selectUser} from '../../redux/userSlice'
 import ImageKit from 'imagekit';
-import { uid } from 'uid';
+import { uid } from 'uid';  
 // import { IKImage, IKVideo, IKContext, IKUpload } from 'imagekitio-react'
 const CreateNewBlog = () => {
 
