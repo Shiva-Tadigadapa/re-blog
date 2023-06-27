@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {selectUser} from '../../redux/userSlice'
 import ImageKit from 'imagekit';
 import { uid } from 'uid';
-import { IKImage, IKVideo, IKContext, IKUpload } from 'imagekitio-react'
+// import { IKImage, IKVideo, IKContext, IKUpload } from 'imagekitio-react'
 const CreateNewBlog = () => {
 
   const imgID=uid(10);
